@@ -68,11 +68,6 @@ function generateMaze(rows, cols) {
     }
   }
   carve(1, 1);
-  for (let i = 0; i < Math.floor(rows * cols * 0.03); i++) {
-    const r = 1 + Math.floor(Math.random() * (rows - 2));
-    const c = 1 + Math.floor(Math.random() * (cols - 2));
-    grid[r][c] = 0;
-  }
   grid[1][1] = 0;
   grid[rows - 2][cols - 2] = 0;
   return grid;
@@ -100,7 +95,7 @@ function getDifficultyParams(profile, level) {
     rows: Math.min(base.rows + grow, 23),
     cols: Math.min(base.cols + grow, 25),
     enemies: Math.min(base.enemies + Math.floor(level / 3), 3),
-    speed: base.speed + (level - 1) * 0.12,
+    speed: base.speed + (level - 1) * 0.1,
     fog: base.fog || level >= 5,
   };
 }
@@ -114,35 +109,39 @@ function HUDItem({ label, value, color }) {
   );
 }
 
-function btnStyle(bg, border) {
-  return {
-    background: bg, color:"#e2e8f0", border:`1px solid ${border||"#2d2d4e"}`,
-    borderRadius:4, padding:"7px 16px", cursor:"pointer",
-    fontFamily:"monospace", fontSize:11, letterSpacing:"0.1em",
-  };
-}
+const btnStyle = (bg, border) => ({
+  background: bg, color:"#e2e8f0", border:`1px solid ${border||"#2d2d4e"}`,
+  borderRadius:4, padding:"7px 16px", cursor:"pointer",
+  fontFamily:"monospace", fontSize:11, letterSpacing:"0.1em",
+});
 
 function MenuBtn({ children, onClick, primary }) {
   const [h, setH] = useState(false);
   return (
     <button onClick={onClick} onMouseEnter={()=>setH(true)} onMouseLeave={()=>setH(false)} style={{
-      background: primary ? (h?"#6d28d9":"#5b21b6") : (h?"#1e1b4b":"#13122a"),
+      background: primary?(h?"#6d28d9":"#5b21b6"):(h?"#1e1b4b":"#13122a"),
       border:`1px solid ${primary?"#7c3aed":"#2d2b55"}`,
       borderRadius:6, color:"#e2e8f0", padding:"12px 32px",
       fontSize:13, fontFamily:"monospace", letterSpacing:"0.15em",
       cursor:"pointer", width:"100%", transition:"all 0.15s",
-      boxShadow: primary&&h?"0 0 20px #7c3aed44":"none",
+      boxShadow:primary&&h?"0 0 20px #7c3aed44":"none",
     }}>{children}</button>
   );
 }
 
 function MobileDPad({ onMove }) {
-  const s = { width:44,height:44,background:"#1a1a2e",border:"1px solid #2d2d4e",borderRadius:6,color:"#a78bfa",fontSize:18,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",userSelect:"none" };
-  const b = (dir, lbl) => <button onTouchStart={e=>{e.preventDefault();onMove(dir);}} onClick={()=>onMove(dir)} style={s}>{lbl}</button>;
+  const s = { width:48,height:48,background:"#1a1a2e",border:"1px solid #2d2d4e",borderRadius:8,color:"#a78bfa",fontSize:20,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",userSelect:"none",WebkitUserSelect:"none" };
+  const b = (dir, lbl) => (
+    <button
+      onTouchStart={e=>{e.preventDefault();onMove(dir);}}
+      onMouseDown={()=>onMove(dir)}
+      style={s}
+    >{lbl}</button>
+  );
   return (
-    <div style={{ marginTop:12,display:"flex",flexDirection:"column",alignItems:"center",gap:4 }}>
+    <div style={{ marginTop:14,display:"flex",flexDirection:"column",alignItems:"center",gap:4 }}>
       <div>{b("up","↑")}</div>
-      <div style={{display:"flex",gap:4}}>{b("left","←")}<div style={{width:44,height:44}}/>{b("right","→")}</div>
+      <div style={{display:"flex",gap:4}}>{b("left","←")}<div style={{width:48,height:48}}/>{b("right","→")}</div>
       <div>{b("down","↓")}</div>
     </div>
   );
@@ -150,7 +149,7 @@ function MobileDPad({ onMove }) {
 
 function Menu({ onStart, adaptiveOn, setAdaptiveOn, onStats, levelHistory }) {
   return (
-    <div style={{ background:"#0a0a0f", minHeight:"100vh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", fontFamily:"monospace", color:"#e2e8f0", padding:20, position:"relative", overflow:"hidden" }}>
+    <div style={{ background:"#0a0a0f",minHeight:"100vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",fontFamily:"monospace",color:"#e2e8f0",padding:20,position:"relative",overflow:"hidden" }}>
       <div style={{ position:"absolute",inset:0,backgroundImage:"linear-gradient(#1e1b4b18 1px,transparent 1px),linear-gradient(90deg,#1e1b4b18 1px,transparent 1px)",backgroundSize:"32px 32px" }}/>
       <div style={{ position:"relative",textAlign:"center",zIndex:1 }}>
         <div style={{ fontSize:10,letterSpacing:"0.4em",color:"#475569",marginBottom:8 }}>ADAPTIVE INTELLIGENCE</div>
@@ -158,7 +157,7 @@ function Menu({ onStart, adaptiveOn, setAdaptiveOn, onStats, levelHistory }) {
         <div style={{ color:"#64748b",fontSize:11,marginBottom:28,letterSpacing:"0.15em" }}>A* PATHFINDING · ADAPTIVE DIFFICULTY · BEHAVIOR ANALYSIS</div>
         <div style={{ display:"flex",gap:7,justifyContent:"center",flexWrap:"wrap",marginBottom:28 }}>
           {["A* Hunter","Blocker AI","Fog of War","Heatmap","Player Profile","7 Levels"].map(f=>(
-            <span key={f} style={{ background:"#1e1b4b",border:"1px solid #2d2b55",borderRadius:12,padding:"3px 10px",fontSize:10,color:"#a78bfa",letterSpacing:"0.05em" }}>{f}</span>
+            <span key={f} style={{ background:"#1e1b4b",border:"1px solid #2d2b55",borderRadius:12,padding:"3px 10px",fontSize:10,color:"#a78bfa" }}>{f}</span>
           ))}
         </div>
         <div style={{ display:"flex",flexDirection:"column",gap:10,alignItems:"center",minWidth:260 }}>
@@ -167,21 +166,21 @@ function Menu({ onStart, adaptiveOn, setAdaptiveOn, onStats, levelHistory }) {
           <MenuBtn onClick={()=>setAdaptiveOn(a=>!a)}>⬡ ADAPTIVE AI: <span style={{color:adaptiveOn?"#22c55e":"#ef4444"}}>{adaptiveOn?"ON":"OFF"}</span></MenuBtn>
         </div>
         <div style={{ marginTop:28,display:"flex",gap:18,justifyContent:"center",flexWrap:"wrap" }}>
-          {[["#3b82f6","You (Player)","circle"],["#22c55e","Exit","square"],["#ef4444","Hunter (A*)","circle"],["#f97316","Blocker","square"]].map(([c,l,s])=>(
+          {[["#3b82f6","You","circle"],["#22c55e","Exit","square"],["#ef4444","Hunter (A*)","circle"],["#f97316","Blocker","square"]].map(([c,l,s])=>(
             <div key={l} style={{ display:"flex",alignItems:"center",gap:6,fontSize:11,color:"#64748b" }}>
               <div style={{ width:11,height:11,background:c,borderRadius:s==="circle"?"50%":"2px",boxShadow:`0 0 5px ${c}`,flexShrink:0 }}/>
               {l}
             </div>
           ))}
         </div>
-        <div style={{ marginTop:16,color:"#2d3748",fontSize:11,letterSpacing:"0.1em" }}>WASD / ARROW KEYS TO MOVE</div>
+        <div style={{ marginTop:16,color:"#334155",fontSize:11,letterSpacing:"0.1em" }}>WASD / ARROW KEYS TO MOVE</div>
       </div>
     </div>
   );
 }
 
 function StatsScreen({ levelHistory, profile, onBack }) {
-  const desc = { Beginner:"Just getting started — keep exploring!", SpeedRunner:"You blaze through mazes. Optimized for speed.", LogicalPlanner:"Methodical and efficient. Minimal mistakes.", Explorer:"You love wandering. Every path is an adventure.", Balanced:"Well-rounded. Highly adaptable." };
+  const desc = { Beginner:"Just getting started!", SpeedRunner:"You blaze through mazes.", LogicalPlanner:"Methodical and efficient.", Explorer:"Every path is an adventure.", Balanced:"Well-rounded and adaptable." };
   return (
     <div style={{ background:"#0a0a0f",minHeight:"100vh",display:"flex",flexDirection:"column",alignItems:"center",fontFamily:"monospace",color:"#e2e8f0",padding:"24px 16px" }}>
       <h2 style={{ color:"#7c3aed",letterSpacing:"0.2em",marginBottom:4 }}>PLAYER STATS</h2>
@@ -211,7 +210,7 @@ function StatsScreen({ levelHistory, profile, onBack }) {
           </table>
         </div>
       </>)}
-      <button onClick={onBack} style={{ ...btnStyle("#1e1b4b"), marginTop:24 }}>← BACK</button>
+      <button onClick={onBack} style={{ ...btnStyle("#1e1b4b"),marginTop:24 }}>← BACK</button>
     </div>
   );
 }
@@ -235,8 +234,7 @@ function WinScreen({ score, profile, onMenu }) {
   return (
     <div style={{ background:"#0a0a0f",minHeight:"100vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",fontFamily:"monospace",color:"#e2e8f0",padding:24,textAlign:"center" }}>
       <div style={{ fontSize:11,letterSpacing:"0.3em",color:"#475569",marginBottom:8 }}>ALL 7 LEVELS COMPLETE</div>
-      <div style={{ fontSize:42,background:"linear-gradient(135deg,#22c55e,#22d3ee)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",fontWeight:900,letterSpacing:"0.05em",marginBottom:8 }}>ESCAPED!</div>
-      <div style={{ color:"#64748b",fontSize:13,marginBottom:8 }}>The maze couldn't hold you.</div>
+      <div style={{ fontSize:42,background:"linear-gradient(135deg,#22c55e,#22d3ee)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",fontWeight:900,marginBottom:8 }}>ESCAPED!</div>
       <div style={{ fontSize:32,color:"#22d3ee",margin:"16px 0 4px" }}>{score.toLocaleString()}</div>
       <div style={{ color:"#475569",fontSize:11,marginBottom:8 }}>FINAL SCORE</div>
       <div style={{ background:"#0d0d1a",border:"1px solid #2d2b55",borderRadius:8,padding:"12px 24px",margin:"12px 0 24px" }}>
@@ -248,37 +246,38 @@ function WinScreen({ score, profile, onMenu }) {
   );
 }
 
+// ── MAIN ──────────────────────────────────────────────────────
 export default function AIMazeEscape() {
   const [screen, setScreen] = useState("menu");
   const [level, setLevel] = useState(1);
   const [grid, setGrid] = useState(null);
-  const [playerPos, setPlayerPos] = useState([1, 1]);
-  const [exitPos, setExitPos] = useState([1, 1]);
+  const [playerPos, setPlayerPos] = useState([1,1]);
+  const [exitPos, setExitPos] = useState([1,1]);
   const [enemies, setEnemies] = useState([]);
   const [fog, setFog] = useState(false);
   const [heatmap, setHeatmap] = useState(null);
   const [timer, setTimer] = useState(0);
-  const [levelStart, setLevelStart] = useState(Date.now());
   const [wrongTurns, setWrongTurns] = useState(0);
   const [pathLength, setPathLength] = useState(0);
   const [optimalLength, setOptimalLength] = useState(1);
   const [score, setScore] = useState(0);
   const [profile, setProfile] = useState("Beginner");
   const [diffParams, setDiffParams] = useState(null);
-  const [metrics, setMetrics] = useState({ avgTime:30, avgWrongTurns:5, avgEfficiency:0.5, levels:0 });
+  const [metrics, setMetrics] = useState({ avgTime:30,avgWrongTurns:5,avgEfficiency:0.5,levels:0 });
   const [levelHistory, setLevelHistory] = useState([]);
   const [adaptiveOn, setAdaptiveOn] = useState(true);
   const [showHeatmap, setShowHeatmap] = useState(false);
   const [playerTrail, setPlayerTrail] = useState([]);
   const [gameRows, setGameRows] = useState(11);
   const [gameCols, setGameCols] = useState(11);
-  const [transitioning, setTransitioning] = useState(false);
   const [levelMsg, setLevelMsg] = useState("");
+  // Grace period: enemies don't move for first N player moves
+  const [graceMoves, setGraceMoves] = useState(0);
 
   const timerRef = useRef(null);
   const enemyRef = useRef(null);
   const gridRef = useRef(null);
-  const playerRef = useRef([1, 1]);
+  const playerRef = useRef([1,1]);
   const enemiesRef = useRef([]);
   const gameRowsRef = useRef(11);
   const gameColsRef = useRef(11);
@@ -288,107 +287,127 @@ export default function AIMazeEscape() {
   const pathLengthRef = useRef(0);
   const optimalLengthRef = useRef(1);
   const levelHistoryRef = useRef([]);
-  const metricsRef = useRef({ avgTime:30, avgWrongTurns:5, avgEfficiency:0.5, levels:0 });
+  const metricsRef = useRef({ avgTime:30,avgWrongTurns:5,avgEfficiency:0.5,levels:0 });
   const profileRef = useRef("Beginner");
   const adaptiveRef = useRef(true);
   const scoreRef = useRef(0);
   const transitioningRef = useRef(false);
+  const graceRef = useRef(0);
 
-  useEffect(() => { playerRef.current = playerPos; }, [playerPos]);
-  useEffect(() => { enemiesRef.current = enemies; }, [enemies]);
-  useEffect(() => { gameRowsRef.current = gameRows; }, [gameRows]);
-  useEffect(() => { gameColsRef.current = gameCols; }, [gameCols]);
-  useEffect(() => { levelRef.current = level; }, [level]);
-  useEffect(() => { wrongTurnsRef.current = wrongTurns; }, [wrongTurns]);
-  useEffect(() => { pathLengthRef.current = pathLength; }, [pathLength]);
-  useEffect(() => { optimalLengthRef.current = optimalLength; }, [optimalLength]);
-  useEffect(() => { levelHistoryRef.current = levelHistory; }, [levelHistory]);
-  useEffect(() => { metricsRef.current = metrics; }, [metrics]);
-  useEffect(() => { profileRef.current = profile; }, [profile]);
-  useEffect(() => { adaptiveRef.current = adaptiveOn; }, [adaptiveOn]);
-  useEffect(() => { scoreRef.current = score; }, [score]);
-  useEffect(() => { transitioningRef.current = transitioning; }, [transitioning]);
+  useEffect(()=>{playerRef.current=playerPos;},[playerPos]);
+  useEffect(()=>{enemiesRef.current=enemies;},[enemies]);
+  useEffect(()=>{gameRowsRef.current=gameRows;},[gameRows]);
+  useEffect(()=>{gameColsRef.current=gameCols;},[gameCols]);
+  useEffect(()=>{levelRef.current=level;},[level]);
+  useEffect(()=>{wrongTurnsRef.current=wrongTurns;},[wrongTurns]);
+  useEffect(()=>{pathLengthRef.current=pathLength;},[pathLength]);
+  useEffect(()=>{optimalLengthRef.current=optimalLength;},[optimalLength]);
+  useEffect(()=>{levelHistoryRef.current=levelHistory;},[levelHistory]);
+  useEffect(()=>{metricsRef.current=metrics;},[metrics]);
+  useEffect(()=>{profileRef.current=profile;},[profile]);
+  useEffect(()=>{adaptiveRef.current=adaptiveOn;},[adaptiveOn]);
+  useEffect(()=>{scoreRef.current=score;},[score]);
+  useEffect(()=>{graceRef.current=graceMoves;},[graceMoves]);
+
+  // Place enemies far enough that the player has at least SAFE_DIST moves head-start
+  const SAFE_DIST = 10;
 
   const initLevel = useCallback((lvl, met, prof, adapt) => {
     const p = adapt ? prof : "Balanced";
     const params = getDifficultyParams(p, lvl);
-    let rows = params.rows % 2 === 0 ? params.rows + 1 : params.rows;
-    let cols = params.cols % 2 === 0 ? params.cols + 1 : params.cols;
+    let rows = params.rows%2===0?params.rows+1:params.rows;
+    let cols = params.cols%2===0?params.cols+1:params.cols;
 
     const newGrid = generateMaze(rows, cols);
-    const exit_ = [rows - 2, cols - 2];
+    const exit_ = [rows-2, cols-2];
     newGrid[exit_[0]][exit_[1]] = 0;
 
+    // Verify player→exit path exists
+    const optPath = astar(newGrid,[1,1],exit_,rows,cols);
+
     const eList = [];
-    for (let i = 0; i < params.enemies; i++) {
-      let er, ec, attempts = 0;
-      do {
-        er = 1 + Math.floor(Math.random() * (rows - 2));
-        ec = 1 + Math.floor(Math.random() * (cols - 2));
+    for (let i=0; i<params.enemies; i++) {
+      let er, ec, attempts=0, valid=false;
+      while (attempts<200 && !valid) {
+        er = 1+Math.floor(Math.random()*(rows-2));
+        ec = 1+Math.floor(Math.random()*(cols-2));
         attempts++;
-      } while (attempts < 100 && (
-        newGrid[er][ec] === 1 ||
-        (Math.abs(er-1)+Math.abs(ec-1)) < Math.floor(rows/3) ||
-        (er===exit_[0]&&ec===exit_[1])
-      ));
-      eList.push({ pos:[er,ec], type:i===0?"hunter":"blocker", speed:params.speed, color:i===0?"#ef4444":"#f97316", id:i });
+        if (newGrid[er][ec]===1) continue;
+        if (er===1&&ec===1) continue;
+        if (er===exit_[0]&&ec===exit_[1]) continue;
+        // Must be far from player start
+        const distToPlayer = heuristic([er,ec],[1,1]);
+        if (distToPlayer < SAFE_DIST) continue;
+        // Must have a path to player (reachable)
+        const pathToPlayer = astar(newGrid,[er,ec],[1,1],rows,cols);
+        if (pathToPlayer.length < SAFE_DIST) continue;
+        valid = true;
+      }
+      if (!valid) { er=rows-3; ec=cols-3; } // fallback far corner
+      eList.push({
+        pos:[er,ec],
+        type:i===0?"hunter":"blocker",
+        speed:params.speed,
+        color:i===0?"#ef4444":"#f97316",
+        id:i,
+      });
     }
 
-    const optimal = astar(newGrid, [1,1], exit_, rows, cols);
+    // Grace period = half the optimal path length (minimum 6 moves)
+    const grace = Math.max(6, Math.floor((optPath.length||10)/2));
 
     gridRef.current = newGrid;
-    playerRef.current = [1, 1];
+    playerRef.current = [1,1];
     enemiesRef.current = eList;
     gameRowsRef.current = rows;
     gameColsRef.current = cols;
     levelStartRef.current = Date.now();
     wrongTurnsRef.current = 0;
     pathLengthRef.current = 0;
-    optimalLengthRef.current = optimal.length || 1;
+    optimalLengthRef.current = optPath.length||1;
+    transitioningRef.current = false;
+    graceRef.current = grace;
 
     setGrid(newGrid);
     setGameRows(rows);
     setGameCols(cols);
-    setPlayerPos([1, 1]);
+    setPlayerPos([1,1]);
     setExitPos(exit_);
     setEnemies(eList);
     setFog(params.fog);
     setHeatmap(Array.from({length:rows},()=>Array(cols).fill(0)));
     setTimer(0);
-    setLevelStart(Date.now());
     setWrongTurns(0);
     setPathLength(0);
-    setOptimalLength(optimal.length || 1);
+    setOptimalLength(optPath.length||1);
     setPlayerTrail([[1,1]]);
     setDiffParams(params);
-    setTransitioning(false);
-    transitioningRef.current = false;
-  }, []);
+    setGraceMoves(grace);
+  },[]);
 
-  const handleLevelComplete = useCallback(() => {
+  const handleLevelComplete = useCallback(()=>{
     if (transitioningRef.current) return;
     transitioningRef.current = true;
-    setTransitioning(true);
     clearInterval(timerRef.current);
     clearInterval(enemyRef.current);
 
-    const elapsed = Math.round((Date.now() - levelStartRef.current) / 1000);
-    const eff = Math.min(optimalLengthRef.current / Math.max(pathLengthRef.current, 1), 1);
-    const lvlScore = Math.max(0, 1000 - elapsed*10 - wrongTurnsRef.current*5 + Math.floor(eff*200));
+    const elapsed = Math.round((Date.now()-levelStartRef.current)/1000);
+    const eff = Math.min(optimalLengthRef.current/Math.max(pathLengthRef.current,1),1);
+    const lvlScore = Math.max(0,1000-elapsed*10-wrongTurnsRef.current*5+Math.floor(eff*200));
     const curLevel = levelRef.current;
-    const newHistory = [...levelHistoryRef.current, { level:curLevel, time:elapsed, wrongTurns:wrongTurnsRef.current, efficiency:eff, score:lvlScore }];
+    const newHistory = [...levelHistoryRef.current,{level:curLevel,time:elapsed,wrongTurns:wrongTurnsRef.current,efficiency:eff,score:lvlScore}];
     levelHistoryRef.current = newHistory;
-    const newScore = scoreRef.current + lvlScore;
+    const newScore = scoreRef.current+lvlScore;
     scoreRef.current = newScore;
     setScore(newScore);
     setLevelHistory(newHistory);
 
     const total = newHistory.length;
     const newMetrics = {
-      avgTime: newHistory.reduce((s,l)=>s+l.time,0)/total,
-      avgWrongTurns: newHistory.reduce((s,l)=>s+l.wrongTurns,0)/total,
-      avgEfficiency: newHistory.reduce((s,l)=>s+l.efficiency,0)/total,
-      levels: total,
+      avgTime:newHistory.reduce((s,l)=>s+l.time,0)/total,
+      avgWrongTurns:newHistory.reduce((s,l)=>s+l.wrongTurns,0)/total,
+      avgEfficiency:newHistory.reduce((s,l)=>s+l.efficiency,0)/total,
+      levels:total,
     };
     metricsRef.current = newMetrics;
     setMetrics(newMetrics);
@@ -396,209 +415,223 @@ export default function AIMazeEscape() {
     profileRef.current = newProfile;
     setProfile(newProfile);
 
-    const nextLevel = curLevel + 1;
+    const nextLevel = curLevel+1;
     levelRef.current = nextLevel;
     setLevel(nextLevel);
 
-    if (nextLevel > 7) {
-      setScreen("win");
-      return;
-    }
+    if (nextLevel>7){ setScreen("win"); return; }
 
-    const msg = `Level ${curLevel} complete! +${lvlScore} pts  →  Profile: ${newProfile}`;
-    setLevelMsg(msg);
-    setTimeout(() => {
+    setLevelMsg(`Level ${curLevel} complete! +${lvlScore} pts  →  Profile: ${newProfile}`);
+    setTimeout(()=>{
       setLevelMsg("");
-      initLevel(nextLevel, newMetrics, newProfile, adaptiveRef.current);
-    }, 1600);
-  }, [initLevel]);
+      initLevel(nextLevel,newMetrics,newProfile,adaptiveRef.current);
+    },1800);
+  },[initLevel]);
 
-  const startGame = useCallback(() => {
+  const startGame = useCallback(()=>{
     clearInterval(timerRef.current);
     clearInterval(enemyRef.current);
-    setLevel(1); levelRef.current = 1;
-    setScore(0); scoreRef.current = 0;
-    setProfile("Beginner"); profileRef.current = "Beginner";
-    const initMet = { avgTime:30, avgWrongTurns:5, avgEfficiency:0.5, levels:0 };
-    setMetrics(initMet); metricsRef.current = initMet;
-    setLevelHistory([]); levelHistoryRef.current = [];
-    transitioningRef.current = false;
-    initLevel(1, initMet, "Beginner", adaptiveOn);
+    setLevel(1); levelRef.current=1;
+    setScore(0); scoreRef.current=0;
+    setProfile("Beginner"); profileRef.current="Beginner";
+    const initMet={avgTime:30,avgWrongTurns:5,avgEfficiency:0.5,levels:0};
+    setMetrics(initMet); metricsRef.current=initMet;
+    setLevelHistory([]); levelHistoryRef.current=[];
+    transitioningRef.current=false;
+    initLevel(1,initMet,"Beginner",adaptiveOn);
     setScreen("game");
-  }, [initLevel, adaptiveOn]);
+  },[initLevel,adaptiveOn]);
 
   // Timer
-  useEffect(() => {
-    if (screen !== "game") return;
-    timerRef.current = setInterval(() => setTimer(t => t+1), 1000);
-    return () => clearInterval(timerRef.current);
-  }, [screen, level]);
+  useEffect(()=>{
+    if (screen!=="game") return;
+    timerRef.current = setInterval(()=>setTimer(t=>t+1),1000);
+    return ()=>clearInterval(timerRef.current);
+  },[screen,level]);
 
-  // Enemy AI
-  useEffect(() => {
-    if (screen !== "game" || !diffParams) return;
-    const move = () => {
+  // Enemy AI — only starts after grace period expires
+  useEffect(()=>{
+    if (screen!=="game"||!diffParams) return;
+    const move = ()=>{
       if (transitioningRef.current) return;
+      if (graceRef.current>0) return; // still in grace period
       const g = gridRef.current;
       if (!g) return;
-      const rows = gameRowsRef.current, cols = gameColsRef.current;
-      const pPos = playerRef.current;
-      const updated = enemiesRef.current.map(e => {
+      const rows=gameRowsRef.current, cols=gameColsRef.current;
+      const pPos=playerRef.current;
+      const updated = enemiesRef.current.map(e=>{
         if (!e.pos) return e;
-        let target = pPos;
-        if (e.type === "blocker") {
-          const pp = astar(g, pPos, [rows-2, cols-2], rows, cols);
-          if (pp.length > 1) target = pp[Math.min(2, pp.length-1)];
+        let target=pPos;
+        if (e.type==="blocker"){
+          const pp=astar(g,pPos,[rows-2,cols-2],rows,cols);
+          if (pp.length>1) target=pp[Math.min(2,pp.length-1)];
         }
-        const path = astar(g, e.pos, target, rows, cols);
-        if (path.length > 0 && g[path[0][0]][path[0][1]] !== 1) {
-          return { ...e, pos: path[0] };
+        const path=astar(g,e.pos,target,rows,cols);
+        if (path.length>0&&g[path[0][0]][path[0][1]]!==1){
+          return {...e,pos:path[0]};
         }
         return e;
       });
       setEnemies(updated);
-      enemiesRef.current = updated;
-      const pp = playerRef.current;
-      if (updated.some(e => e.pos && e.pos[0]===pp[0] && e.pos[1]===pp[1])) {
+      enemiesRef.current=updated;
+      const pp=playerRef.current;
+      if (updated.some(e=>e.pos&&e.pos[0]===pp[0]&&e.pos[1]===pp[1])){
         clearInterval(enemyRef.current);
         setScreen("gameover");
       }
     };
-    const interval = Math.max(120, Math.floor(300 / (diffParams.speed || 1)));
-    enemyRef.current = setInterval(move, interval);
-    return () => clearInterval(enemyRef.current);
-  }, [screen, level, diffParams]);
+    const interval = Math.max(150,Math.floor(320/(diffParams.speed||1)));
+    enemyRef.current = setInterval(move,interval);
+    return ()=>clearInterval(enemyRef.current);
+  },[screen,level,diffParams]);
 
   // Keyboard
-  useEffect(() => {
-    if (screen !== "game") return;
-    const handler = (e) => {
+  useEffect(()=>{
+    if (screen!=="game") return;
+    const handler=(e)=>{
       if (transitioningRef.current) return;
-      const dirMap = { ArrowUp:[-1,0], ArrowDown:[1,0], ArrowLeft:[0,-1], ArrowRight:[0,1], w:[-1,0], s:[1,0], a:[0,-1], d:[0,1], W:[-1,0], S:[1,0], A:[0,-1], D:[0,1] };
-      const dir = dirMap[e.key];
+      const dirMap={ArrowUp:[-1,0],ArrowDown:[1,0],ArrowLeft:[0,-1],ArrowRight:[0,1],w:[-1,0],s:[1,0],a:[0,-1],d:[0,1],W:[-1,0],S:[1,0],A:[0,-1],D:[0,1]};
+      const dir=dirMap[e.key];
       if (!dir) return;
       e.preventDefault();
-      const g = gridRef.current;
+      const g=gridRef.current;
       if (!g) return;
-      const rows = gameRowsRef.current, cols = gameColsRef.current;
-      const [pr, pc] = playerRef.current;
-      const nr = pr+dir[0], nc = pc+dir[1];
-      if (nr<0||nr>=rows||nc<0||nc>=cols||g[nr][nc]===1) {
+      const rows=gameRowsRef.current,cols=gameColsRef.current;
+      const [pr,pc]=playerRef.current;
+      const nr=pr+dir[0],nc=pc+dir[1];
+      if (nr<0||nr>=rows||nc<0||nc>=cols||g[nr][nc]===1){
         setWrongTurns(w=>w+1); wrongTurnsRef.current++;
         return;
       }
-      playerRef.current = [nr, nc];
-      setPlayerPos([nr, nc]);
+      // Decrease grace counter on each valid move
+      if (graceRef.current>0){
+        graceRef.current = graceRef.current-1;
+        setGraceMoves(g=>Math.max(0,g-1));
+      }
+      playerRef.current=[nr,nc];
+      setPlayerPos([nr,nc]);
       setPathLength(p=>p+1); pathLengthRef.current++;
       setPlayerTrail(t=>[...t.slice(-25),[nr,nc]]);
       setHeatmap(h=>{
         if(!h||!h[nr]) return h;
-        const nh = h.map(r=>[...r]);
+        const nh=h.map(r=>[...r]);
         nh[nr][nc]=(nh[nr][nc]||0)+1;
         return nh;
       });
-      if (enemiesRef.current.some(en=>en.pos&&en.pos[0]===nr&&en.pos[1]===nc)) {
+      if (enemiesRef.current.some(en=>en.pos&&en.pos[0]===nr&&en.pos[1]===nc)){
         setScreen("gameover"); return;
       }
-      const rows2 = gameRowsRef.current, cols2 = gameColsRef.current;
-      if (nr===rows2-2 && nc===cols2-2) handleLevelComplete();
+      const r2=gameRowsRef.current,c2=gameColsRef.current;
+      if (nr===r2-2&&nc===c2-2) handleLevelComplete();
     };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, [screen, handleLevelComplete]);
+    window.addEventListener("keydown",handler);
+    return ()=>window.removeEventListener("keydown",handler);
+  },[screen,handleLevelComplete]);
 
-  const isVisible = (r, c) => {
+  const isVisible=(r,c)=>{
     if (!fog) return true;
-    const [pr, pc] = playerPos;
-    return Math.abs(r-pr)<=3 && Math.abs(c-pc)<=3;
+    const [pr,pc]=playerPos;
+    return Math.abs(r-pr)<=3&&Math.abs(c-pc)<=3;
   };
 
-  if (screen === "menu") return <Menu onStart={startGame} adaptiveOn={adaptiveOn} setAdaptiveOn={setAdaptiveOn} onStats={()=>setScreen("stats")} levelHistory={levelHistory}/>;
-  if (screen === "stats") return <StatsScreen levelHistory={levelHistory} profile={profile} onBack={()=>setScreen("menu")}/>;
-  if (screen === "gameover") return <GameOver score={score} level={level} onRetry={startGame} onMenu={()=>setScreen("menu")}/>;
-  if (screen === "win") return <WinScreen score={score} profile={profile} onMenu={()=>setScreen("menu")}/>;
+  if (screen==="menu") return <Menu onStart={startGame} adaptiveOn={adaptiveOn} setAdaptiveOn={setAdaptiveOn} onStats={()=>setScreen("stats")} levelHistory={levelHistory}/>;
+  if (screen==="stats") return <StatsScreen levelHistory={levelHistory} profile={profile} onBack={()=>setScreen("menu")}/>;
+  if (screen==="gameover") return <GameOver score={score} level={level} onRetry={startGame} onMenu={()=>setScreen("menu")}/>;
+  if (screen==="win") return <WinScreen score={score} profile={profile} onMenu={()=>setScreen("menu")}/>;
   if (!grid) return <div style={{background:"#0a0a0f",color:"#7c3aed",height:"100vh",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"monospace"}}>Generating maze...</div>;
 
-  const vw = typeof window !== "undefined" ? window.innerWidth : 600;
-  const maxMazeW = Math.min(vw - 32, 640);
-  const cs = Math.max(14, Math.min(Math.floor(maxMazeW / gameCols), 34));
-
-  const profileColors = { Beginner:"#22d3ee", SpeedRunner:"#f97316", LogicalPlanner:"#8b5cf6", Explorer:"#22c55e", Balanced:"#a78bfa" };
+  const vw = typeof window!=="undefined"?window.innerWidth:600;
+  const cs = Math.max(14,Math.min(Math.floor((Math.min(vw-32,640))/gameCols),34));
+  const profileColors={Beginner:"#22d3ee",SpeedRunner:"#f97316",LogicalPlanner:"#8b5cf6",Explorer:"#22c55e",Balanced:"#a78bfa"};
 
   return (
-    <div style={{ background:"#0a0a0f", minHeight:"100vh", display:"flex", flexDirection:"column", alignItems:"center", fontFamily:"monospace", color:"#e2e8f0", userSelect:"none", padding:"10px 8px" }}>
+    <div style={{ background:"#0a0a0f",minHeight:"100vh",display:"flex",flexDirection:"column",alignItems:"center",fontFamily:"monospace",color:"#e2e8f0",userSelect:"none",padding:"10px 8px" }}>
       {/* HUD */}
-      <div style={{ display:"flex", gap:10, marginBottom:8, flexWrap:"wrap", justifyContent:"center", width:"100%", maxWidth:700 }}>
+      <div style={{ display:"flex",gap:8,marginBottom:8,flexWrap:"wrap",justifyContent:"center",width:"100%",maxWidth:700 }}>
         <HUDItem label="LEVEL" value={`${level}/7`} color="#7c3aed"/>
         <HUDItem label="SCORE" value={score.toLocaleString()} color="#22d3ee"/>
         <HUDItem label="TIME" value={`${timer}s`} color="#f59e0b"/>
         <HUDItem label="WRONG" value={wrongTurns} color="#ef4444"/>
         <HUDItem label="PROFILE" value={profile} color={profileColors[profile]||"#a78bfa"}/>
-        {fog && <HUDItem label="FOG" value="ON" color="#64748b"/>}
         {enemies.length>0 && <HUDItem label="ENEMIES" value={enemies.length} color="#f97316"/>}
       </div>
 
+      {/* Grace period banner */}
+      {graceMoves>0 && enemies.length>0 && (
+        <div style={{ background:"#1a2e1a",border:"1px solid #22c55e55",borderRadius:6,padding:"5px 16px",marginBottom:6,fontSize:11,color:"#22c55e",letterSpacing:"0.1em" }}>
+          🛡 SAFE — enemies activate in <strong>{graceMoves}</strong> move{graceMoves!==1?"s":""}
+        </div>
+      )}
+
       {levelMsg && (
-        <div style={{ background:"#1e1b4b", border:"1px solid #7c3aed", borderRadius:6, padding:"7px 20px", marginBottom:8, fontSize:12, color:"#a78bfa", textAlign:"center", animation:"fadeIn 0.3s ease" }}>
+        <div style={{ background:"#1e1b4b",border:"1px solid #7c3aed",borderRadius:6,padding:"7px 20px",marginBottom:6,fontSize:12,color:"#a78bfa",textAlign:"center" }}>
           {levelMsg}
         </div>
       )}
 
-      <div style={{ fontSize:9, color:"#2d3748", marginBottom:6, letterSpacing:"0.12em" }}>
-        WASD / ARROWS · <span style={{color:"#22c55e"}}>■</span> = EXIT · <span style={{color:"#ef4444"}}>●</span> = ENEMY
+      <div style={{ fontSize:9,color:"#2d3748",marginBottom:5,letterSpacing:"0.12em" }}>
+        WASD / ARROWS · <span style={{color:"#22c55e"}}>■</span> EXIT · <span style={{color:"#ef4444"}}>●</span> HUNTER · <span style={{color:"#f97316"}}>■</span> BLOCKER
       </div>
 
       {/* Maze */}
-      <div style={{ position:"relative", border:"2px solid #1e1b4b", boxShadow:"0 0 32px #7c3aed33", background:"#050508" }}>
-        {grid.map((row, r) => (
-          <div key={r} style={{ display:"flex" }}>
-            {row.map((cell, c) => {
-              const vis = isVisible(r, c);
-              const isPlayer = playerPos[0]===r && playerPos[1]===c;
-              const isExit = exitPos[0]===r && exitPos[1]===c;
-              const enemy = enemies.find(e=>e.pos&&e.pos[0]===r&&e.pos[1]===c);
-              const isWall = cell===1;
-              const heat = heatmap&&heatmap[r]?heatmap[r][c]:0;
-              const isTrail = playerTrail.some(([tr,tc])=>tr===r&&tc===c)&&!isPlayer&&!isWall;
+      <div style={{ position:"relative",border:"2px solid #1e1b4b",boxShadow:"0 0 32px #7c3aed33",background:"#050508" }}>
+        {grid.map((row,r)=>(
+          <div key={r} style={{display:"flex"}}>
+            {row.map((cell,c)=>{
+              const vis=isVisible(r,c);
+              const isPlayer=playerPos[0]===r&&playerPos[1]===c;
+              const isExit=exitPos[0]===r&&exitPos[1]===c;
+              const enemy=enemies.find(e=>e.pos&&e.pos[0]===r&&e.pos[1]===c);
+              const isWall=cell===1;
+              const heat=heatmap&&heatmap[r]?heatmap[r][c]:0;
+              const isTrail=playerTrail.some(([tr,tc])=>tr===r&&tc===c)&&!isPlayer&&!isWall;
 
-              let bg = "#0d0d1a";
-              if (!vis) bg = "#050508";
-              else if (isWall) bg = "#16213e";
-              else if (showHeatmap && heat>0) {
-                const intensity = Math.min(heat/6,1);
-                bg = `rgba(124,58,237,${0.12+intensity*0.55})`;
-              } else if (isTrail) bg = "#0b0b18";
+              let bg="#0d0d1a";
+              if (!vis) bg="#050508";
+              else if (isWall) bg="#16213e";
+              else if (showHeatmap&&heat>0){ const iv=Math.min(heat/6,1); bg=`rgba(124,58,237,${0.12+iv*0.55})`; }
+              else if (isTrail) bg="#0b0b18";
 
               return (
-                <div key={c} style={{ width:cs, height:cs, background:bg, position:"relative", boxSizing:"border-box", overflow:"hidden",
-                  borderRight: isWall&&vis?"1px solid #1a1a30":"none",
-                  borderBottom: isWall&&vis?"1px solid #1a1a30":"none",
+                <div key={c} style={{ width:cs,height:cs,background:bg,position:"relative",boxSizing:"border-box",overflow:"hidden",
+                  borderRight:isWall&&vis?"1px solid #1a1a30":"none",
+                  borderBottom:isWall&&vis?"1px solid #1a1a30":"none",
                 }}>
-                  {isExit && vis && <>
+                  {isExit&&vis&&<>
                     <div style={{ position:"absolute",inset:0,background:"radial-gradient(circle,#22c55e55,transparent)",animation:"pulse 1.5s infinite" }}/>
                     <div style={{ position:"absolute",inset:"18%",background:"#22c55e",borderRadius:2,boxShadow:"0 0 8px #22c55e" }}/>
                   </>}
-                  {isPlayer && <div style={{ position:"absolute",inset:"10%",background:"radial-gradient(circle,#93c5fd,#2563eb)",borderRadius:"50%",boxShadow:"0 0 10px #3b82f6",zIndex:10,animation:"glow 0.9s ease-in-out infinite alternate" }}/>}
-                  {enemy && vis && <div style={{ position:"absolute",inset:"8%",background:`radial-gradient(circle,${enemy.color}cc,${enemy.color})`,borderRadius:enemy.type==="blocker"?"3px":"50%",boxShadow:`0 0 8px ${enemy.color}`,zIndex:9,animation:"epulse 0.45s ease-in-out infinite alternate" }}/>}
+                  {isPlayer&&(
+                    <div style={{ position:"absolute",inset:"10%",background:"radial-gradient(circle,#93c5fd,#2563eb)",borderRadius:"50%",boxShadow:"0 0 10px #3b82f6",zIndex:10,animation:"glow 0.9s ease-in-out infinite alternate" }}/>
+                  )}
+                  {enemy&&vis&&(
+                    <div style={{ position:"absolute",inset:"8%",background:`radial-gradient(circle,${enemy.color}cc,${enemy.color})`,borderRadius:enemy.type==="blocker"?"3px":"50%",boxShadow:`0 0 8px ${enemy.color}`,zIndex:9,animation:"epulse 0.45s ease-in-out infinite alternate",
+                      // Dim enemies during grace period
+                      opacity: graceRef.current>0?0.35:1,
+                    }}>
+                      {/* Eye dot */}
+                      <div style={{ position:"absolute",inset:"25%",background:"rgba(0,0,0,0.5)",borderRadius:"50%" }}/>
+                    </div>
+                  )}
                 </div>
               );
             })}
           </div>
         ))}
-        {fog && (
+        {fog&&(
           <div style={{ position:"absolute",inset:0,background:`radial-gradient(circle ${cs*4}px at ${playerPos[1]*cs+cs/2}px ${playerPos[0]*cs+cs/2}px,transparent 55%,#050508 90%)`,pointerEvents:"none",zIndex:5 }}/>
         )}
       </div>
 
       <div style={{ display:"flex",gap:10,marginTop:10 }}>
-        <button onClick={()=>setShowHeatmap(h=>!h)} style={btnStyle(showHeatmap?"#3b0764":"#1e1b4b", showHeatmap?"#7c3aed":"#2d2d4e")}>
+        <button onClick={()=>setShowHeatmap(h=>!h)} style={btnStyle(showHeatmap?"#3b0764":"#1e1b4b",showHeatmap?"#7c3aed":"#2d2d4e")}>
           {showHeatmap?"HEATMAP ●":"HEATMAP"}
         </button>
         <button onClick={()=>setScreen("menu")} style={btnStyle("#1e1b4b")}>QUIT</button>
       </div>
 
       <MobileDPad onMove={dir=>{
-        const k = {up:"ArrowUp",down:"ArrowDown",left:"ArrowLeft",right:"ArrowRight"}[dir];
+        const k={up:"ArrowUp",down:"ArrowDown",left:"ArrowLeft",right:"ArrowRight"}[dir];
         if(k) window.dispatchEvent(new KeyboardEvent("keydown",{key:k,bubbles:true}));
       }}/>
 
@@ -606,7 +639,6 @@ export default function AIMazeEscape() {
         @keyframes pulse{0%,100%{opacity:.7}50%{opacity:1}}
         @keyframes glow{from{box-shadow:0 0 6px #3b82f6}to{box-shadow:0 0 16px #3b82f6,0 0 28px #93c5fd33}}
         @keyframes epulse{from{opacity:.8}to{opacity:1;transform:scale(1.08)}}
-        @keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
       `}</style>
     </div>
   );
